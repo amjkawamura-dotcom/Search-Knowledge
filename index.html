@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>商品情報・FAQ 検索 | カスタマーサポート</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠️</text></svg>">
+<style>
+  :root {
+    --bg: #eef1f6;
+    --card: #ffffff;
+    --ink: #1f2937;
+    --ink-soft: #5b6678;
+    --ink-faint: #aab3c0;
+    --navy: #1e3a5f;
+    --navy-deep: #14263f;
+    --accent: #2f6fb0;
+    --accent-soft: #9fc1e0;
+    --faq: #3f7a64;
+    --faq-soft: #d9ebe2;
+    --change: #3a5b94;
+    --change-soft: #e3e9f4;
+    --cs: #6b5b95;
+    --cs-soft: #eae9f4;
+    --line: #dde3ec;
+    --shadow: 0 4px 18px rgba(30, 58, 95, 0.10);
+    --shadow-lift: 0 8px 28px rgba(30, 58, 95, 0.18);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+    background: var(--bg);
+    background-image: radial-gradient(circle at 15% 0%, #f3f6fb 0%, transparent 55%),
+                      radial-gradient(circle at 95% 100%, #e4eaf3 0%, transparent 50%);
+    color: var(--ink);
+    line-height: 1.7;
+    min-height: 100vh;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* ===== ログイン ===== */
+  #login {
+    position: fixed; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(160deg, #1e3a5f, #14263f);
+    z-index: 100; padding: 24px;
+  }
+  .login-card {
+    background: var(--card); border-radius: 24px; box-shadow: var(--shadow-lift);
+    padding: 44px 34px 38px; width: 100%; max-width: 380px; text-align: center;
+    border: 1px solid var(--line);
+  }
+  .login-card .mark { font-size: 40px; margin-bottom: 6px; }
+  .login-card h1 { font-size: 20px; font-weight: 700; color: var(--navy); margin-bottom: 4px; letter-spacing: 0.04em; }
+  .login-card p.sub { font-size: 13px; color: var(--ink-soft); margin-bottom: 26px; }
+  .login-card input {
+    width: 100%; padding: 14px 16px; font-size: 20px; text-align: center;
+    letter-spacing: 0.5em; border: 2px solid var(--line); border-radius: 14px;
+    background: #fff; color: var(--ink); outline: none; transition: border-color .2s; font-family: inherit;
+  }
+  .login-card input:focus { border-color: var(--accent-soft); }
+  .login-card button {
+    width: 100%; margin-top: 16px; padding: 14px; font-size: 16px; font-weight: 700;
+    background: var(--accent); color: #fff; border: none; border-radius: 14px;
+    cursor: pointer; transition: background .2s, transform .1s; font-family: inherit;
+  }
+  .login-card button:hover { background: var(--navy); }
+  .login-card button:active { transform: scale(0.98); }
+  .login-err { color: #c0392b; font-size: 13px; margin-top: 14px; min-height: 18px; }
+
+  /* ===== メイン ===== */
+  #app { display: none; max-width: 940px; margin: 0 auto; padding: 22px 16px 80px; }
+  header.site { text-align: center; padding: 18px 0 6px; }
+  header.site .mark { font-size: 30px; }
+  header.site h1 { font-size: 21px; color: var(--navy); font-weight: 700; letter-spacing: 0.03em; }
+  header.site p { font-size: 13px; color: var(--ink-soft); margin-top: 2px; }
+
+  .search-wrap { position: sticky; top: 0; z-index: 20; background: var(--bg); padding: 14px 0 12px; margin-top: 10px; }
+  .search-box { background: var(--card); border: 1.5px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 14px 16px; }
+  .search-box label { font-size: 12px; color: var(--ink-soft); display:block; margin-bottom: 6px; }
+  .search-input-row { display: flex; gap: 8px; }
+  .search-box input[type=text] {
+    flex: 1; padding: 12px 14px; font-size: 16px; border: 1.5px solid var(--line);
+    border-radius: 12px; outline: none; background: #fff; color: var(--ink); font-family: inherit; transition: border-color .2s;
+  }
+  .search-box input[type=text]:focus { border-color: var(--accent-soft); }
+  .search-box .clear-btn {
+    padding: 0 16px; border: 1.5px solid var(--line); background: #fff; border-radius: 12px;
+    cursor: pointer; color: var(--ink-soft); font-size: 14px; font-family: inherit; white-space: nowrap; transition: background .2s;
+  }
+  .search-box .clear-btn:hover { background: #eef2f8; }
+  .hint { font-size: 11.5px; color: var(--ink-soft); margin-top: 8px; line-height: 1.5; }
+
+  /* タブ */
+  .tabs { display: flex; gap: 8px; margin-top: 12px; }
+  .tab {
+    flex: 1; text-align: center; padding: 9px 6px; font-size: 13px; font-weight: 700;
+    border: 1.5px solid var(--line); background: #fff; color: var(--ink-soft);
+    border-radius: 12px; cursor: pointer; transition: all .15s; font-family: inherit;
+  }
+  .tab .tcount { font-size: 11px; font-weight: 400; opacity: .8; }
+  .tab.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .tab.active.faq { background: var(--faq); border-color: var(--faq); }
+  .tab.active.change { background: var(--change); border-color: var(--change); }
+  .tab.active.csmanual { background: var(--cs); border-color: var(--cs); }
+
+  .toolbar { display:flex; align-items:center; justify-content:space-between; gap:8px; margin: 14px 4px; flex-wrap: wrap; }
+  .count { font-size: 13px; color: var(--ink-soft); }
+  .count b { color: var(--navy); }
+  .reload-btn {
+    font-size: 12px; color: var(--accent); background: #fff; border: 1.5px solid var(--line);
+    border-radius: 10px; padding: 6px 12px; cursor: pointer; font-family: inherit;
+    display: inline-flex; align-items: center; gap: 5px; transition: background .2s;
+  }
+  .reload-btn:hover { background: #eef2f8; }
+
+  /* ===== カード ===== */
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); margin-bottom: 16px; overflow: hidden; transition: box-shadow .2s; }
+  .card:hover { box-shadow: var(--shadow-lift); }
+  .card.faq-card { border-left: 4px solid var(--faq); }
+  .card.prod-card { border-left: 4px solid var(--navy); }
+  .card.change-card { border-left: 4px solid var(--change); }
+  .card.csmanual-card { border-left: 4px solid var(--cs); }
+  .card-head { padding: 16px 18px; cursor: pointer; display: flex; align-items: flex-start; gap: 12px; user-select: none; }
+  .card-head .id {
+    flex: none; min-width: 34px; height: 34px; padding: 0 7px; border-radius: 10px;
+    background: var(--navy); color: #fff; font-weight: 700; font-size: 13px;
+    display: flex; align-items: center; justify-content: center; white-space: nowrap;
+  }
+  .faq-card .card-head .id { background: var(--faq); }
+  .change-card .card-head .id { background: var(--change); }
+  .csmanual-card .card-head .id { background: var(--cs); }
+  .card-head .head-body { flex: 1; min-width: 0; }
+  .card-head .pname { font-size: 16px; font-weight: 700; color: var(--ink); }
+  .typetag { display:inline-block; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:999px; margin-bottom:4px; }
+  .typetag.prod { background: var(--navy); color:#fff; }
+  .typetag.faq { background: var(--faq); color:#fff; }
+  .typetag.change { background: var(--change); color:#fff; }
+  .typetag.csmanual { background: var(--cs); color:#fff; }
+  .badge { display: inline-block; background: #e7eef7; color: var(--accent); font-size: 11px; padding: 2px 9px; border-radius: 999px; margin-right: 6px; margin-top: 6px; }
+  .badge.model { background: #e5efe9; color: var(--faq); }
+  .badge.faqcat { background: var(--faq-soft); color: var(--faq); }
+  .badge.changecat { background: var(--change-soft); color: var(--change); }
+  .badge.cscat { background: var(--cs-soft); color: var(--cs); }
+  .card-head .chev { flex: none; color: var(--accent); font-size: 18px; transition: transform .25s; align-self: center; }
+  .faq-card .card-head .chev { color: var(--faq); }
+  .change-card .card-head .chev { color: var(--change); }
+  .csmanual-card .card-head .chev { color: var(--cs); }
+  .card.open .chev { transform: rotate(180deg); }
+
+  .symptom-line { font-size: 13.5px; color: var(--ink-soft); margin-top: 6px; white-space: pre-wrap; }
+  .symptom-line .sym-label { color: var(--navy); font-weight: 700; }
+  .faq-card .symptom-line .sym-label { color: var(--faq); }
+  .change-card .symptom-line .sym-label { color: var(--change); }
+  .csmanual-card .symptom-line .sym-label { color: var(--cs); }
+
+  .card-body { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
+  .card.open .card-body { max-height: 3200px; border-top: 1px solid var(--line); }
+  .card-body-inner { padding: 16px 18px 18px; }
+
+  .field { margin-bottom: 14px; }
+  .field:last-child { margin-bottom: 0; }
+  .field .ftitle { font-size: 11.5px; font-weight: 700; color: var(--navy); letter-spacing: 0.05em; margin-bottom: 4px; }
+  .faq-card .field .ftitle { color: var(--faq); }
+  .change-card .field .ftitle { color: var(--change); }
+  .csmanual-card .field .ftitle { color: var(--cs); }
+  .field .fbody { font-size: 14px; color: var(--ink); white-space: pre-wrap; word-break: break-word; }
+  .field.parts .fbody { background: #eef2f8; border-radius: 10px; padding: 10px 12px; font-size: 13px; border: 1px solid var(--line); }
+  .field.notice .fbody { color: #b06a1a; }
+  .field.answer .fbody { background: var(--faq-soft); border-radius: 10px; padding: 10px 12px; border: 1px solid #c5ddd2; }
+  .field.csbody .fbody { background: var(--cs-soft); border-radius: 10px; padding: 10px 12px; border: 1px solid #d6cfe8; }
+  .field.tpl .fbody { background: #fbf7ee; border-radius: 10px; padding: 10px 12px; border: 1px solid #ecdfc3; font-size: 13px; }
+
+  /* 検索ワード（薄めのグレー表示） */
+  .keywords-line {
+    margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--line);
+    font-size: 12px; color: var(--ink-faint); white-space: pre-wrap; word-break: break-word;
+  }
+  .keywords-line .kw-label { font-size: 10.5px; letter-spacing: 0.05em; margin-right: 6px; }
+  .keywords-line mark { background: #fff3c2; color: #8a8f99; }
+
+  .link-btn {
+    display: inline-flex; align-items: center; gap: 7px; margin-top: 4px;
+    background: var(--accent); color: #fff; text-decoration: none; padding: 9px 15px;
+    border-radius: 11px; font-size: 13.5px; font-weight: 700; transition: background .2s, transform .1s; line-height: 1.4; word-break: break-all;
+  }
+  .link-btn:hover { background: var(--navy); }
+  .link-btn:active { transform: scale(0.98); }
+  .link-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  mark { background: #ffe9a8; color: inherit; padding: 0 2px; border-radius: 3px; }
+
+  .empty, .loading, .errorbox { text-align: center; padding: 50px 20px; color: var(--ink-soft); }
+  .empty .em, .loading .em, .errorbox .em { font-size: 42px; }
+  .empty p, .loading p, .errorbox p { font-size: 15px; margin-top: 8px; }
+  .spinner { width: 34px; height: 34px; border: 3px solid var(--line); border-top-color: var(--accent); border-radius: 50%; margin: 0 auto; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .errorbox p.detail { font-size: 12px; color: #c0392b; margin-top: 10px; word-break: break-all; }
+
+  .section-label { font-size: 12px; font-weight: 700; color: var(--ink-soft); margin: 18px 4px 10px; letter-spacing: .05em; display:flex; align-items:center; gap:6px; }
+  .section-label::after { content:''; flex:1; height:1px; background: var(--line); }
+
+  footer { text-align: center; font-size: 11.5px; color: var(--ink-soft); padding: 24px 0 0; }
+
+  @media (max-width: 480px) {
+    header.site h1 { font-size: 18px; }
+    .card-head .pname { font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ログイン画面 -->
+<div id="login">
+  <div class="login-card">
+    <div class="mark">🛠️</div>
+    <h1>商品情報・FAQ 検索</h1>
+    <p class="sub">カスタマーサポート 社内検索ツール</p>
+    <input id="pw" type="password" inputmode="numeric" placeholder="パスワード" maxlength="8" autocomplete="off">
+    <button id="loginBtn">ログイン</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- メイン -->
+<div id="app">
+  <header class="site">
+    <div class="mark">🛠️</div>
+    <h1>商品情報・FAQ 検索</h1>
+    <p>商品の症状・エラーコードや、よくあるご質問をまとめて検索できます</p>
+  </header>
+
+  <div class="search-wrap">
+    <div class="search-box">
+      <label for="q">🔍 キーワード検索（スペース区切りで複数検索）</label>
+      <div class="search-input-row">
+        <input id="q" type="text" placeholder="例： BW-SRM16 E05  /  返品  /  配送" autocomplete="off">
+        <button class="clear-btn" id="clearBtn">クリア</button>
+      </div>
+      <div class="hint">複数のワードはスペースで区切ると、すべて含む結果が表示されます。商品情報・FAQ・交換手順・CSマニュアルから横断検索します。</div>
+    </div>
+    <div class="tabs">
+      <div class="tab active" data-filter="all" id="tabAll">すべて <span class="tcount" id="cAll"></span></div>
+      <div class="tab" data-filter="product" id="tabProd">📦 商品情報 <span class="tcount" id="cProd"></span></div>
+      <div class="tab faq" data-filter="faq" id="tabFaq">❓ FAQ・対応方針 <span class="tcount" id="cFaq"></span></div>
+      <div class="tab change" data-filter="change" id="tabChange">⛏️ 交換手順 <span class="tcount" id="cChange"></span></div>
+      <div class="tab csmanual" data-filter="csmanual" id="tabCs">🧏 CSマニュアル <span class="tcount" id="cCs"></span></div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="count" id="count"></div>
+    <button class="reload-btn" id="reloadBtn">🔄 最新データに更新</button>
+  </div>
+  <div id="results"></div>
+
+  <footer>カスタマーサポート 検索ツール｜データはスプレッドシートと自動連携しています</footer>
+</div>
+
+<script>
+/* ===================================================================
+   ★★★ 設定：ここにGASのウェブアプリURLを貼り付けてください ★★★
+   （列構成変更に対応した新しいGASをデプロイした場合は、そのURLに差し替え）
+=================================================================== */
+const API_URL = "https://script.google.com/macros/s/AKfycbxrbAcIlm2uRiiuG0eK7-v41pfowECde2NBeHjrXASQ2jTpdnA9HODv-1aDAzW9LhEOCw/exec";
+
+const PASSWORD = "0588";
+
+let PRODUCTS = [];
+let FAQS = [];
+let CHANGES = [];
+let CSMANUALS = [];
+let activeFilter = 'all';
+
+const loginEl = document.getElementById('login');
+const appEl = document.getElementById('app');
+const pwEl = document.getElementById('pw');
+const errEl = document.getElementById('loginErr');
+const qEl = document.getElementById('q');
+const resultsEl = document.getElementById('results');
+const countEl = document.getElementById('count');
+
+/* ===== ログイン ===== */
+function tryLogin() {
+  if (pwEl.value === PASSWORD) {
+    loginEl.style.display = 'none';
+    appEl.style.display = 'block';
+    loadData();
+  } else {
+    errEl.textContent = 'パスワードが正しくありません。';
+    pwEl.value = '';
+    pwEl.focus();
+  }
+}
+document.getElementById('loginBtn').addEventListener('click', tryLogin);
+pwEl.addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+
+/* ===== データ取得 ===== */
+function loadData() {
+  resultsEl.innerHTML = '<div class="loading"><div class="spinner"></div><p>最新データを読み込んでいます…</p></div>';
+  countEl.textContent = '';
+
+  if (!API_URL || API_URL.indexOf('script.google.com') === -1) {
+    resultsEl.innerHTML = '<div class="errorbox"><div class="em">⚙️</div><p>API URLが設定されていません。</p><p class="detail">HTMLファイル内の API_URL に、GASのウェブアプリURLを貼り付けてください。</p></div>';
+    return;
+  }
+
+  fetch(API_URL, { method: 'GET', mode: 'cors', cache: 'no-cache' })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) throw new Error(data.error);
+      PRODUCTS = data.products || [];
+      FAQS = data.faqs || [];
+      CHANGES = data.changes || [];
+      CSMANUALS = data.csmanuals || [];
+      document.getElementById('cProd').textContent = '(' + PRODUCTS.length + ')';
+      document.getElementById('cFaq').textContent = '(' + FAQS.length + ')';
+      document.getElementById('cChange').textContent = '(' + CHANGES.length + ')';
+      document.getElementById('cCs').textContent = '(' + CSMANUALS.length + ')';
+      document.getElementById('cAll').textContent = '(' + (PRODUCTS.length + FAQS.length + CHANGES.length + CSMANUALS.length) + ')';
+      qEl.focus();
+      render(qEl.value);
+    })
+    .catch(err => {
+      resultsEl.innerHTML = '<div class="errorbox"><div class="em">⚠️</div><p>データの読み込みに失敗しました。</p><p class="detail">' + escapeHtml(String(err)) + '</p></div>';
+    });
+}
+document.getElementById('reloadBtn').addEventListener('click', loadData);
+
+/* ===== タブ ===== */
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    activeFilter = tab.dataset.filter;
+    render(qEl.value);
+  });
+});
+
+/* ===== ユーティリティ ===== */
+function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+function highlight(text, terms){
+  let html = escapeHtml(text);
+  terms.forEach(t=>{
+    if(!t) return;
+    const re = new RegExp('('+t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
+    html = html.replace(re,'<mark>$1</mark>');
+  });
+  return html;
+}
+function matchTerms(text, terms){
+  const t = text.toLowerCase();
+  return terms.every(term => t.includes(term));
+}
+/* タイトル組み立て（空欄はスキップして全角スペースで連結） */
+function joinTitle(){
+  return Array.prototype.slice.call(arguments).map(s=>String(s||'').trim()).filter(Boolean).join('　');
+}
+function extractLinks(){
+  let urls = [];
+  const re = /(https?:\/\/[^\s　）)】」]+)/g;
+  for(let i=0;i<arguments.length;i++){
+    const f = arguments[i];
+    if(!f) continue;
+    let m;
+    while((m = re.exec(f)) !== null){ urls.push(m[1]); }
+  }
+  return [...new Set(urls)];
+}
+function linkLabel(url){
+  if(url.indexOf('youtu')!==-1) return '▶ 参考動画を開く';
+  if(url.indexOf('.pdf')!==-1) return '📄 PDFを開く';
+  if(url.indexOf('docs.google')!==-1 || url.indexOf('spreadsheets')!==-1 || url.indexOf('drive.google')!==-1) return '📊 参考シート・資料を開く';
+  return '🔗 リンクを開く';
+}
+function linkButtons(urls){
+  if(!urls.length) return '';
+  const btns = urls.map(u=>'<a class="link-btn" href="'+escapeHtml(u)+'" target="_blank" rel="noopener">'+linkLabel(u)+'</a>').join('');
+  return '<div class="field"><div class="ftitle">🔗 リンク</div><div class="link-row">'+btns+'</div></div>';
+}
+/* 検索ワード（薄めのグレーで最後に表示） */
+function keywordsLine(kw, terms){
+  if(!kw || !String(kw).trim()) return '';
+  return '<div class="keywords-line"><span class="kw-label">🔖 検索ワード</span>'+highlight(kw, terms)+'</div>';
+}
+
+/* ===== 商品情報カード =====
+   タイトル：商品名＋モデル＋カテゴリ
+   サブタイトル：症状・内容・よくある質問
+   最後に検索ワードをグレー表示 ／ 更新状況は非表示 */
+function productCard(p, terms){
+  const hl = (txt)=>highlight(txt, terms);
+  let fields = '';
+  if(p.symptom) fields += '<div class="field"><div class="ftitle">📌 症状・内容・よくある質問</div><div class="fbody">'+hl(p.symptom)+'</div></div>';
+  if(p.solution) fields += '<div class="field"><div class="ftitle">🔧 解決方法・対応</div><div class="fbody">'+hl(p.solution)+'</div></div>';
+  if(p.notice) fields += '<div class="field notice"><div class="ftitle">⚠️ 注意事項</div><div class="fbody">'+hl(p.notice)+'</div></div>';
+  if(p.image) fields += '<div class="field"><div class="ftitle">🖼️ 参考画像・資料</div><div class="fbody">'+hl(p.image)+'</div></div>';
+  if(p.parts) fields += '<div class="field parts"><div class="ftitle">📦 パーツコード</div><div class="fbody">'+hl(p.parts)+'</div></div>';
+  if(p.phrase) fields += '<div class="field"><div class="ftitle">🏷️ フレーズ名</div><div class="fbody">'+hl(p.phrase)+'</div></div>';
+  if(p.tplInitial) fields += '<div class="field tpl"><div class="ftitle">📝 承認テンプレ（初期不良）</div><div class="fbody">'+hl(p.tplInitial)+'</div></div>';
+  if(p.tplWarranty) fields += '<div class="field tpl"><div class="ftitle">📝 承認テンプレ（保証期間内）</div><div class="fbody">'+hl(p.tplWarranty)+'</div></div>';
+  if(p.tplOutside) fields += '<div class="field tpl"><div class="ftitle">📝 承認テンプレ（保証期間外）</div><div class="fbody">'+hl(p.tplOutside)+'</div></div>';
+  if(p.note) fields += '<div class="field"><div class="ftitle">📝 備考</div><div class="fbody">'+hl(p.note)+'</div></div>';
+  fields += linkButtons(extractLinks(p.image, p.solution, p.notice, p.note));
+  fields += keywordsLine(p.keywords, terms);
+
+  const title = joinTitle(p.name, p.model, p.category) || '（商品名未登録）';
+  const symPreview = p.symptom ? '<div class="symptom-line">'+hl(p.symptom.length>80?p.symptom.slice(0,80)+'…':p.symptom)+'</div>' : '';
+
+  return '<div class="card prod-card">'
+    + '<div class="card-head" onclick="this.parentElement.classList.toggle(\'open\')">'
+    + '<div class="id">'+escapeHtml(p.id)+'</div>'
+    + '<div class="head-body">'
+    + '<span class="typetag prod">📦 商品情報</span>'
+    + '<div class="pname">'+hl(title)+'</div>'
+    + symPreview
+    + '</div><div class="chev">▾</div></div>'
+    + '<div class="card-body"><div class="card-body-inner">'+(fields||'<div class="field"><div class="fbody" style="color:var(--ink-soft)">詳細情報は登録されていません。</div></div>')+'</div></div>'
+    + '</div>';
+}
+
+/* ===== FAQカード =====
+   タイトル：カテゴリ＋質問（Q） ／ 更新状況は非表示 */
+function faqCard(f, terms){
+  const hl = (txt)=>highlight(txt, terms);
+  let fields = '';
+  if(f.question) fields += '<div class="field"><div class="ftitle">❓ 質問</div><div class="fbody">'+hl(f.question)+'</div></div>';
+  if(f.answer) fields += '<div class="field answer"><div class="ftitle">💬 回答・対応方針</div><div class="fbody">'+hl(f.answer)+'</div></div>';
+  if(f.example) fields += '<div class="field tpl"><div class="ftitle">🗣️ 案内文例</div><div class="fbody">'+hl(f.example)+'</div></div>';
+  if(f.relatedProduct) fields += '<div class="field"><div class="ftitle">🔗 関連商品ID</div><div class="fbody">'+hl(f.relatedProduct)+'</div></div>';
+  if(f.phrase) fields += '<div class="field"><div class="ftitle">🏷️ フレーズ</div><div class="fbody">'+hl(f.phrase)+'</div></div>';
+  if(f.note) fields += '<div class="field"><div class="ftitle">📝 備考</div><div class="fbody">'+hl(f.note)+'</div></div>';
+  fields += linkButtons(extractLinks(f.question, f.answer, f.example, f.note));
+
+  const title = joinTitle(f.category, f.question) || '（内容未登録）';
+  const titleShort = title.length>60 ? title.slice(0,60)+'…' : title;
+
+  return '<div class="card faq-card">'
+    + '<div class="card-head" onclick="this.parentElement.classList.toggle(\'open\')">'
+    + '<div class="id">'+escapeHtml(f.id)+'</div>'
+    + '<div class="head-body">'
+    + '<span class="typetag faq">❓ FAQ・対応方針</span>'
+    + '<div class="pname">'+hl(titleShort)+'</div>'
+    + '</div><div class="chev">▾</div></div>'
+    + '<div class="card-body"><div class="card-body-inner">'+(fields||'<div class="field"><div class="fbody" style="color:var(--ink-soft)">詳細情報は登録されていません。</div></div>')+'</div></div>'
+    + '</div>';
+}
+
+/* ===== 交換手順カード =====
+   タイトル：商品名＋モデル＋カテゴリ ／ 更新状況は非表示 */
+function changeCard(c, terms){
+  const hl = (txt)=>highlight(txt, terms);
+  let fields = '';
+  if(c.parts) fields += '<div class="field"><div class="ftitle">🔩 交換パーツ</div><div class="fbody">'+hl(c.parts)+'</div></div>';
+  if(c.partsCode) fields += '<div class="field parts"><div class="ftitle">📦 パーツコード</div><div class="fbody">'+hl(c.partsCode)+'</div></div>';
+  if(c.tools) fields += '<div class="field"><div class="ftitle">🛠️ 使用工具</div><div class="fbody">'+hl(c.tools)+'</div></div>';
+  if(c.phrase) fields += '<div class="field"><div class="ftitle">🏷️ フレーズ名</div><div class="fbody">'+hl(c.phrase)+'</div></div>';
+  if(c.note) fields += '<div class="field"><div class="ftitle">📝 備考</div><div class="fbody">'+hl(c.note)+'</div></div>';
+  if(c.note2) fields += '<div class="field"><div class="ftitle">📝 備考2</div><div class="fbody">'+hl(c.note2)+'</div></div>';
+  fields += linkButtons(extractLinks(c.video, c.pdf, c.note, c.note2));
+  fields += keywordsLine(c.keywords, terms);
+
+  const title = joinTitle(c.name, c.model, c.category) || '（内容未登録）';
+  const titleShort = title.length>60 ? title.slice(0,60)+'…' : title;
+  const partsPreview = c.parts ? '<div class="symptom-line">'+hl(c.parts.length>80?c.parts.slice(0,80)+'…':c.parts)+'</div>' : '';
+
+  return '<div class="card change-card">'
+    + '<div class="card-head" onclick="this.parentElement.classList.toggle(\'open\')">'
+    + '<div class="id">'+escapeHtml(c.id)+'</div>'
+    + '<div class="head-body">'
+    + '<span class="typetag change">⛏️ 交換手順</span>'
+    + '<div class="pname">'+hl(titleShort)+'</div>'
+    + partsPreview
+    + '</div><div class="chev">▾</div></div>'
+    + '<div class="card-body"><div class="card-body-inner">'+(fields||'<div class="field"><div class="fbody" style="color:var(--ink-soft)">詳細情報は登録されていません。</div></div>')+'</div></div>'
+    + '</div>';
+}
+
+/* ===== CSマニュアルカード =====
+   タイトル：カテゴリ＋内容 ／ 更新状況は非表示 */
+function csmanualCard(m, terms){
+  const hl = (txt)=>highlight(txt, terms);
+  let fields = '';
+  if(m.detail) fields += '<div class="field csbody"><div class="ftitle">💬 補足・対応内容</div><div class="fbody">'+hl(m.detail)+'</div></div>';
+  if(m.reply) fields += '<div class="field tpl"><div class="ftitle">✉️ 返信例</div><div class="fbody">'+hl(m.reply)+'</div></div>';
+  if(m.phrase) fields += '<div class="field"><div class="ftitle">🏷️ フレーズ</div><div class="fbody">'+hl(m.phrase)+'</div></div>';
+  if(m.note) fields += '<div class="field"><div class="ftitle">📝 備考</div><div class="fbody">'+hl(m.note)+'</div></div>';
+  fields += linkButtons(extractLinks(m.manualUrl, m.detail, m.reply, m.note));
+  fields += keywordsLine(m.keywords, terms);
+
+  const title = joinTitle(m.category, m.content) || '（内容未登録）';
+  const titleShort = title.length>60 ? title.slice(0,60)+'…' : title;
+
+  return '<div class="card csmanual-card">'
+    + '<div class="card-head" onclick="this.parentElement.classList.toggle(\'open\')">'
+    + '<div class="id">'+escapeHtml(m.id)+'</div>'
+    + '<div class="head-body">'
+    + '<span class="typetag csmanual">🧏 CSマニュアル</span>'
+    + '<div class="pname">'+hl(titleShort)+'</div>'
+    + '</div><div class="chev">▾</div></div>'
+    + '<div class="card-body"><div class="card-body-inner">'+(fields||'<div class="field"><div class="fbody" style="color:var(--ink-soft)">詳細情報は登録されていません。</div></div>')+'</div></div>'
+    + '</div>';
+}
+
+/* ===== 描画 ===== */
+function render(query){
+  const terms = (query||'').trim().toLowerCase().split(/[\s　]+/).filter(Boolean);
+
+  let prodList = [];
+  let faqList = [];
+  let changeList = [];
+  let csList = [];
+
+  if(activeFilter === 'all' || activeFilter === 'product'){
+    prodList = PRODUCTS.filter(p=>{
+      if(!terms.length) return true;
+      return matchTerms([p.id,p.name,p.model,p.category,p.symptom,p.solution,p.notice,p.image,p.parts,p.phrase,p.tplInitial,p.tplWarranty,p.tplOutside,p.note,p.keywords].join(' '), terms);
+    });
+  }
+  if(activeFilter === 'all' || activeFilter === 'faq'){
+    faqList = FAQS.filter(f=>{
+      if(!terms.length) return true;
+      return matchTerms([f.id,f.category,f.question,f.answer,f.relatedProduct,f.phrase,f.example,f.note].join(' '), terms);
+    });
+  }
+  if(activeFilter === 'all' || activeFilter === 'change'){
+    changeList = CHANGES.filter(c=>{
+      if(!terms.length) return true;
+      return matchTerms([c.id,c.name,c.model,c.category,c.parts,c.partsCode,c.tools,c.phrase,c.note,c.note2,c.keywords].join(' '), terms);
+    });
+  }
+  if(activeFilter === 'all' || activeFilter === 'csmanual'){
+    csList = CSMANUALS.filter(m=>{
+      if(!terms.length) return true;
+      return matchTerms([m.id,m.category,m.content,m.detail,m.phrase,m.reply,m.note,m.keywords].join(' '), terms);
+    });
+  }
+
+  const total = prodList.length + faqList.length + changeList.length + csList.length;
+  if(terms.length){
+    countEl.innerHTML = '<b>'+total+'</b> 件が見つかりました';
+  } else {
+    countEl.innerHTML = '全 <b>'+total+'</b> 件を表示中';
+  }
+
+  if(total===0){
+    resultsEl.innerHTML = '<div class="empty"><div class="em">🔎</div><p>該当する情報が見つかりませんでした。<br>キーワードを変えてお試しください。</p></div>';
+    return;
+  }
+
+  let html = '';
+  if(prodList.length){
+    if(activeFilter==='all') html += '<div class="section-label">📦 商品情報（'+prodList.length+'件）</div>';
+    html += prodList.map(p=>productCard(p, terms)).join('');
+  }
+  if(faqList.length){
+    if(activeFilter==='all') html += '<div class="section-label">❓ FAQ・カスタマー対応方針（'+faqList.length+'件）</div>';
+    html += faqList.map(f=>faqCard(f, terms)).join('');
+  }
+  if(changeList.length){
+    if(activeFilter==='all') html += '<div class="section-label">⛏️ 交換手順（'+changeList.length+'件）</div>';
+    html += changeList.map(c=>changeCard(c, terms)).join('');
+  }
+  if(csList.length){
+    if(activeFilter==='all') html += '<div class="section-label">🧏 CSマニュアル情報（'+csList.length+'件）</div>';
+    html += csList.map(m=>csmanualCard(m, terms)).join('');
+  }
+  resultsEl.innerHTML = html;
+
+  if(terms.length){
+    document.querySelectorAll('.card').forEach(c=>c.classList.add('open'));
+  }
+}
+
+let timer;
+qEl.addEventListener('input', ()=>{
+  clearTimeout(timer);
+  timer = setTimeout(()=>render(qEl.value), 120);
+});
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  qEl.value=''; render(''); qEl.focus();
+});
+</script>
+</body>
+</html>
